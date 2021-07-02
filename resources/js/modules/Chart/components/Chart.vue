@@ -1,22 +1,46 @@
 <template>
-    <div >
-<!--        <h2>Создание диаграммы</h2>-->
+    <div>
+        <h2>Создание диаграммы</h2>
+        <div>
+            <p>
+                <label>Выберите нужный тип или множество типов диаграммы</label>
+                <input type="text" v-model="chart_type"/>
+                <button v-on:click="option.series.push(chart_type)">Добавить</button>
+            </p>
+            <ul>
+                <li v-for="(type, index) in option.series">
+                    <p>{{ type }}<button v-on:click="option.series.splice(index, 1)">Удалить</button></p>
+                </li>
+            </ul>
+        </div>
+        <div>
+            <p>
+                <label>Выберите данные</label>
+                <label>т.е. название категории, которая отобразится по оси x</label>
+                <input type="text" v-model="chart_name" />
+                <button v-on:click="option.name_dataset.push(chart_name)">Добавить</button>
+            </p>
+            <ul>
+                <li v-for="(name, index) in option.name_dataset">
+                    <p>{{ name }} <button v-on:click="option.name_dataset.splice(index, 1)">Удалить</button></p>
+                </li>
+            </ul>
+        </div>
+        <div>
+            <p>
+                <label>данные для категории</label>
+                <input type="text" v-model="value" />
+                <button v-on:click="option.value_dataset.push(value.split(','))">Добавить</button>
+            </p>
+            <ul>
+                <li v-for="(value, index) in option.value_dataset">
+                    <p>{{ value }} <button v-on:click="option.value_dataset.splice(index, 1)">Удалить</button></p>
+                </li>
+            </ul>
+        </div>
         <form action="#" method="post">
-<!--            <div>-->
-<!--                <label>Выберите тип диаграммы</label>-->
-<!--                <input type="text" v-model="this.option.series[0].type">-->
-<!--            </div>-->
-<!--            <div>-->
-<!--                <label>Введите данные или категории для отображения по оси</label>-->
-<!--                <input type="text" v-model="option.xAxis.data">-->
-<!--            </div>-->
-<!--            <div>-->
-<!--                <label>Введите данные то есть точки для постороения диаграммы</label>-->
-<!--                <input type="text" v-model="option.series[0].data">-->
-<!--            </div>-->
             <button v-on:click.prevent="request()">отправить/обновить данные</button>
         </form>
-        {{this.options}}
         <v-chart class="chart" :option="options"/>
     </div>
 </template>
@@ -58,52 +82,32 @@ export default {
     name: "Chart",
     components: { VChart },
     provide: {[THEME_KEY]: "dark"},
-    // watch: {
-    //     'options': function (last, newEl) {
-    //         console.log(last, '1')
-    //         console.log(newEl, '2')
-    //         console.log(this.options)
-    //     }
-    // },
     data() {
         return {
-            // option: {
-            //     xAxis: {
-            //         type: 'category',
-            //         data: []
-            //     },
-            //     yAxis: {
-            //         type: 'value'
-            //     },
-            //     series: [{
-            //         data: [],
-            //         type: 'line'
-            //     }]
-            // },
+            chart_type: '',
+            chart_name: '',
+            value: '',
+            option: {
+                series: [],
+                name_dataset: [],
+                value_dataset: [],
+                x_axis: [""],
+                y_axis: []
+            },
             options: {}
         };
     },
     methods: {
-        async request() {
-            const res = await axios.post('http://127.0.0.1:8000/api/chart', {
-                "chart_type": ["line", "line", "line"],
-                "name_dataset": ["year-1", "year-2", "year-3"],
-                "value_dataset": [
-                    [90, 100, 100],
-                    [120, 130, 100],
-                    [140, 200, 300]
-                ],
-                "x_axis" : [""],
-                "y_axis" : []
-                // "x_axis": this.option.xAxis.data ? this.option.xAxis.data.toString() : "",
-                // "y_axis": this.option.yAxis.data ? this.option.xAxis.data.toString() : "",
-                // "series_data": this.option.series[0].data.toString(),
-                // "series_name": "",
-                // "series_type": this.option.series[0].type
-            })
-            this.options = res.data
-            console.log(res.data)
-            // echarts.setOption(this.options)
+        request() {
+            axios['post']('http://127.0.0.1:8000/api/chart', {
+                "chart_type": this.option.series, // = ["line", "line"],
+                "name_dataset": this.option.name_dataset, // = ["product", "2001", "2002"],
+                "value_dataset": this.option.value_dataset, // = [["year-2001", "year-2002"], [20,40], [30, 50]],
+                "x_axis" : this.option.x_axis = [""],
+                "y_axis" : this.option.y_axis,
+            }).then(response => { this.options = response.data
+                console.log(response.data)
+            }).catch(error => console.log(error));
         }
     }
 }

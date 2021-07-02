@@ -11,9 +11,7 @@ class Chart extends Model
 
     protected $fillable = [
         'chart_type',
-        //for line
         'name_dataset',
-        //for pie and other
         'value_dataset',
         'x_axis',
         'y_axis',

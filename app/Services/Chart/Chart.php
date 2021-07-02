@@ -64,25 +64,20 @@ class Chart
         $datasetValueCounter = count($datasetValues);
 
         $dataset = new \stdClass();
-//        $dataset->dimensions = $datasetNames;
-        $dataset->source = array_fill(0, count($datasetNames),
-            array_fill(0, $this->advancedArrayCount($datasetValues), 0)
-        );
-        if ($datasetNameCounter == $datasetValueCounter) {
-            for ($x = 0; $x < $datasetNameCounter; $x++) {
-                for ($y = 0; $y < $this->advancedArrayCount($datasetValues); $y++) {
-                    is_int($datasetValues[$x][$y])
-                        ? $dataset->source[$y][$x] = (int)$datasetValues[$x][$y]
-                        : $dataset->source[$y][$x] = $datasetValues[$x][$y];
-                }
-            }
-        } else {
+
+        if ($datasetNameCounter != $datasetValueCounter) {
             return Response::json([
                 "status" => "error",
                 "message" => "введено больше или меньше значений чем названий этих категорий"
             ], 500);
         }
+
+        for ($x = 0; $x < $datasetNameCounter; $x++) {
+            $dataset->source[$x] = array_column($datasetValues, $x);
+        }
+
         array_unshift($dataset->source, $datasetNames);
+
         return $dataset;
     }
 
@@ -95,6 +90,7 @@ class Chart
         $axis = new \stdClass();
         $axis->type = 'value';
 
+        //если тип category то автоматом для XAxis подтягивается 1 колонка
         if (!empty($data))
 //        {
 //            is_array($data)
