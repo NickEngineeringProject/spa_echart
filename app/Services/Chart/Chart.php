@@ -88,7 +88,7 @@ class Chart
     public function setAxis(array $data): \stdClass
     {
         $axis = new \stdClass();
-        $axis->type = 'value';
+        $axis->type = 'category';
 
         //если тип category то автоматом для XAxis подтягивается 1 колонка
         if (!empty($data))
